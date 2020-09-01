@@ -1,0 +1,25 @@
+{
+    "name": "dqblanco/check-response-sitemap-url",
+    "description": "",
+    "authors": [
+        {
+            "name": "David Quinones",
+            "email": "dqblanco@gmail.com"
+        }
+    ],
+    "require": {
+        "symfony/console": "^5.1"
+    },
+    "config": {
+        "platform": {
+            "php": "7.3"
+        },
+        "sort-packages": true
+    },
+    "autoload": {
+        "psr-4": {
+         "Console\\": "src"
+        },
+        "classmap": ["src"]
+    }
+}
