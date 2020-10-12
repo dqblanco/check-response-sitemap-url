@@ -1,10 +1,12 @@
-<?php namespace Console;
+<?php
 
-use CheckUrlSiteMap;
+namespace Console;
+
+use Console\lib\CheckUrlSiteMap;
 use SimpleXMLElement;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
+
 use Symfony\Component\Console\Output\OutputInterface;
 
 
@@ -36,28 +38,17 @@ class CheckUrlSiteMapCommand extends Command
         $openFileXml = file_get_contents($urlSiteMap);
 
         if($openFileXml){
-            $this->checkUrlSiteMap = new CheckUrlSiteMap(new SimpleXMLElement($openFileXml));
-            $output->writeln('<info>Leyendo '.$urlSiteMap.'</info>');
-            $this->checkUrlSiteMap->checkSiteMap();
+            $pathLog404 = __DIR__."../../var/log/400.log";
+            $pathLog200 = __DIR__."../../var/log/200.log";
+            $pathLog500 = __DIR__."../../var/log/500.log";
+            $pathLogOthers = __DIR__."../../var/log/other.log";
 
+            $this->checkUrlSiteMap = new CheckUrlSiteMap(new SimpleXMLElement($openFileXml),$pathLog404, $pathLog200, $pathLog500, $pathLogOthers);
+            $output->writeln('<info>Leyendo '.$urlSiteMap.'</info>');
+            $this->checkUrlSiteMap->checkSiteMap($output);
         }else{
             $output->writeln('<error>No es posible abrir el archivo xml</error>');
         }
-
-
-       // $output->writeln($checkUrlSiteMap);
-
-        //Only numbers
-        /*if(is_numeric($from) && is_numeric($to)){
-            $this->colorTest($input, $output);
-            $output->writeln('<info>From: </info>'.$from);
-            $output->writeln('<info>To: </info>'.$to);
-            for ($i = 0; $i < $input->getOption('iterations'); $i++) {
-                $output->writeln('Iteration: '.$i.' <comment>Result: '.($from + $to).'</comment>');
-            }
-        }else{
-            $output->writeln('<error>Please, send me two numbers. Thanks</error>');
-        }*/
 
         $output->writeln('');
         $this->endCli($input, $output);

@@ -1,11 +1,9 @@
-# WIP - Aún en desarrollo
-
 # Cómo verificar el código de respuesta de las urls de un sitemap
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 El siguiente script nos ayuda a conocer el código de repuestas de las urls de un mapa del sitio. 
 
-Con el código http de repuestas puedieramos saber si la url esta disponible o si presenta algún error de ejecución. Conocer si código de respuesta 
+Con el código http de repuesta podemos saber si la url esta disponible o si presenta algún error de ejecución. Conocer si código de respuesta 
 de nuestras urls publicadas en el mapa del sitio responden correctamente es muy importante, ya que puede afectar nuestro SEO. Muchas urls sin respuesta, puede ser un problema serio de SEO. 
 
 ## Requerimientos técnicos

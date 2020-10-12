@@ -1,28 +1,12 @@
 <?php
 
+namespace Console\lib;
+
+use SimpleXMLElement;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class CheckUrlSiteMap
 {
-
-    /**
-     * @var string
-     */
-    protected $pathLog404;
-
-    /**
-     * @var string
-     */
-    protected $pathLog200;
-
-    /**
-     * @var string
-     */
-    protected $pathLog500;
-
-    /**
-     * @var string
-     */
-    protected $pathLogOthers;
 
     /**
      * @var SimpleXMLElement
@@ -30,15 +14,53 @@ class CheckUrlSiteMap
     protected $simpleXMLElement;
 
     /**
+     * @var string|null
+     */
+    protected $pathLog404;
+
+    /**
+     * @var string|null
+     */
+    protected $pathLog200;
+
+    /**
+     * @var string|null
+     */
+    protected $pathLog500;
+
+    /**
+     * @var string|null
+     */
+    protected $pathLogOthers;
+
+
+    /**
      * @var string|bool
      */
     protected $urlOpenFile;
 
-    public function __construct(SimpleXMLElement $simpleXMLElement ){
+    /**
+     * CheckUrlSiteMap constructor.
+     * @param SimpleXMLElement $simpleXMLElement
+     * @param string|null $pathLog404
+     * @param string|null $pathLog200
+     * @param string|null $pathLog500
+     * @param string|null $pathLogOthers
+     */
+    public function __construct(SimpleXMLElement $simpleXMLElement, $pathLog404, $pathLog200, $pathLog500, $pathLogOthers)
+    {
         $this->simpleXMLElement = $simpleXMLElement;
+        $this->pathLog404 = $pathLog404;
+        $this->pathLog200 = $pathLog200;
+        $this->pathLog500 = $pathLog500;
+        $this->pathLogOthers = $pathLogOthers;
     }
 
-    public function checkSiteMap(){
+    /**
+     * Check Site Map
+     * @param OutputInterface $output
+     */
+    public function checkSiteMap(OutputInterface $output){
         foreach($this->simpleXMLElement->url as $valInterno){
             $url_file = $valInterno->loc;
             $curl_file = curl_init($url_file);
@@ -47,23 +69,26 @@ class CheckUrlSiteMap
 
             if ($result_file !== false) {
                 $statusCode = curl_getinfo($curl_file, CURLINFO_HTTP_CODE);
-                echo $url_file.': '.$statusCode."\n";
-                /*if ($statusCode == 404) {
-                    $file = fopen($pathLog404,"a");
+
+                $output->writeln('<comment>'.$url_file.': '.$statusCode.'</comment>');
+
+                if ($statusCode == 404) {
+                    $file = fopen($this->getPathLog404(),"a+");
                     fputs($file,$valInterno->loc."\n");
                 }elseif ($statusCode == 200) {
-                    $file = fopen($pathLog200,"a");
+                    $file = fopen($this->getPathLog200(),"a+");
                     fputs($file,$valInterno->loc."\n");
                 }elseif ($statusCode == 403) {
-                    $file = fopen($pathLog404,"a");
+                    $file = fopen($this->getPathLogOthers(),"a+");
                     fputs($file,$valInterno->loc."\n");
 
                 }elseif ($statusCode == 500) {
-                    $file = fopen($pathLog404,"a");
+                    $file = fopen($this->getPathLog500(),"a+");
                     fputs($file,$valInterno->loc."\n");
                 }else{
-                    echo $statusCode. " ". $valInterno->loc. "\n";
-                }*/
+                    $file = fopen($this->getPathLogOthers(),"a+");
+                    fputs($file,$valInterno->loc."\n");
+                }
             }
         }
 
