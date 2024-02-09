@@ -3,6 +3,7 @@
 namespace Console;
 
 use Console\lib\CheckUrlSiteMap;
+use Exception;
 use SimpleXMLElement;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -29,6 +30,10 @@ class CheckUrlSiteMapCommand extends Command
             ->setHelp('Help here')
             ->addArgument('urlSiteMap', InputArgument::REQUIRED, 'Url del mapa del sitio a validar');
     }
+
+    /**
+     * @throws Exception
+     */
     public function execute(InputInterface $input, OutputInterface $output)
     {
         $this->initCli($input, $output);
