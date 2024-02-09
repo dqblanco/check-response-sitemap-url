@@ -16,7 +16,7 @@ class CheckUrlSiteMapCommand extends Command
     /**
      * @var CheckUrlSiteMap
      */
-    protected $checkUrlSiteMap;
+    protected CheckUrlSiteMap $checkUrlSiteMap;
 
     public function __construct()
     {
@@ -34,7 +34,7 @@ class CheckUrlSiteMapCommand extends Command
     /**
      * @throws Exception
      */
-    public function execute(InputInterface $input, OutputInterface $output)
+    public function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->initCli($input, $output);
 
@@ -43,7 +43,7 @@ class CheckUrlSiteMapCommand extends Command
         $openFileXml = file_get_contents($urlSiteMap);
 
         if($openFileXml){
-            $pathLog404 = __DIR__."../../var/log/400.log";
+            $pathLog404 = __DIR__."../../var/log/404.log";
             $pathLog200 = __DIR__."../../var/log/200.log";
             $pathLog500 = __DIR__."../../var/log/500.log";
             $pathLogOthers = __DIR__."../../var/log/other.log";

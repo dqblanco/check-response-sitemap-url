@@ -2,6 +2,7 @@
 
 namespace Console\lib;
 
+use Exception;
 use SimpleXMLElement;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -14,40 +15,43 @@ class CheckUrlSiteMap
     protected $simpleXMLElement;
 
     /**
-     * @var string|null
+     * @var string
      */
-    protected $pathLog404;
+    protected string $pathLog404;
 
     /**
-     * @var string|null
+     * @var string
      */
-    protected $pathLog200;
+    protected string $pathLog200;
 
     /**
-     * @var string|null
+     * @var string
      */
-    protected $pathLog500;
+    protected string $pathLog500;
 
     /**
-     * @var string|null
+     * @var string
      */
-    protected $pathLogOthers;
-
+    protected string $pathLogOthers;
 
     /**
-     * @var string|bool
+     * @var OutputInterface
      */
-    protected $urlOpenFile;
+    protected OutputInterface $output;
+    /**
+     * @var string
+     */
+    protected string $urlOpenFile;
 
     /**
      * CheckUrlSiteMap constructor.
      * @param SimpleXMLElement $simpleXMLElement
-     * @param string|null $pathLog404
-     * @param string|null $pathLog200
-     * @param string|null $pathLog500
-     * @param string|null $pathLogOthers
+     * @param string $pathLog404
+     * @param string $pathLog200
+     * @param string $pathLog500
+     * @param string $pathLogOthers
      */
-    public function __construct(SimpleXMLElement $simpleXMLElement, $pathLog404, $pathLog200, $pathLog500, $pathLogOthers)
+    public function __construct(SimpleXMLElement $simpleXMLElement, string $pathLog404, string $pathLog200, string $pathLog500, string $pathLogOthers)
     {
         $this->simpleXMLElement = $simpleXMLElement;
         $this->pathLog404 = $pathLog404;
@@ -59,18 +63,49 @@ class CheckUrlSiteMap
     /**
      * Check Site Map
      * @param OutputInterface $output
+     * @throws Exception
      */
-    public function checkSiteMap(OutputInterface $output){
+    public function checkSiteMap(OutputInterface $output): void
+    {
+        $this->output = $output;
+        if(count($this->simpleXMLElement->sitemap)){
+            $this->readSiteMap();
+        }else{
+            $this->readUrlSiteMap();
+        }
+
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function readSiteMap(): true
+    {
+        foreach($this->simpleXMLElement->sitemap as $internalNode){
+            if($internalNode->loc){
+                $openFileXml = file_get_contents($internalNode->loc);
+                $checkSiteMap = new CheckUrlSiteMap(new SimpleXMLElement($openFileXml),$this->pathLog404, $this->pathLog200, $this->pathLog500, $this->pathLogOthers);
+                $checkSiteMap->checkSiteMap($this->output);
+            }
+        }
+        return true;
+    }
+
+
+    public function readUrlSiteMap(): true
+    {
         foreach($this->simpleXMLElement->url as $internalNode){
             $url_file = $internalNode->loc;
             $curl_file = curl_init($url_file);
+            curl_setopt($curl_file, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+            curl_setopt($curl_file, CURLOPT_USERPWD, "XALOK:protected");
             curl_setopt($curl_file, CURLOPT_NOBODY, true);
             $result_file = curl_exec($curl_file);
 
             if ($result_file !== false) {
                 $statusCode = curl_getinfo($curl_file, CURLINFO_HTTP_CODE);
 
-                $output->writeln('<comment>'.$url_file.': '.$statusCode.'</comment>');
+                $this->output->writeln('<comment>'.$url_file.': '.$statusCode.'</comment>');
 
                 if ($statusCode == 404) {
                     $file = fopen($this->getPathLog404(),"a+");
@@ -91,12 +126,13 @@ class CheckUrlSiteMap
                 }
             }
         }
-
+        return true;
     }
+
     /**
      * @return string
      */
-    public function getPathLog404()
+    public function getPathLog404(): string
     {
         return $this->pathLog404;
     }
@@ -104,7 +140,7 @@ class CheckUrlSiteMap
     /**
      * @param string $pathLog404
      */
-    public function setPathLog404($pathLog404)
+    public function setPathLog404(string $pathLog404): void
     {
         $this->pathLog404 = $pathLog404;
     }
@@ -112,7 +148,7 @@ class CheckUrlSiteMap
     /**
      * @return string
      */
-    public function getPathLog200()
+    public function getPathLog200(): string
     {
         return $this->pathLog200;
     }
@@ -120,7 +156,7 @@ class CheckUrlSiteMap
     /**
      * @param string $pathLog200
      */
-    public function setPathLog200($pathLog200)
+    public function setPathLog200(string $pathLog200): void
     {
         $this->pathLog200 = $pathLog200;
     }
@@ -128,7 +164,7 @@ class CheckUrlSiteMap
     /**
      * @return string
      */
-    public function getPathLog500()
+    public function getPathLog500(): string
     {
         return $this->pathLog500;
     }
@@ -136,7 +172,7 @@ class CheckUrlSiteMap
     /**
      * @param string $pathLog500
      */
-    public function setPathLog500($pathLog500)
+    public function setPathLog500(string $pathLog500): void
     {
         $this->pathLog500 = $pathLog500;
     }
@@ -144,7 +180,7 @@ class CheckUrlSiteMap
     /**
      * @return string
      */
-    public function getPathLogOthers()
+    public function getPathLogOthers(): string
     {
         return $this->pathLogOthers;
     }
@@ -152,7 +188,7 @@ class CheckUrlSiteMap
     /**
      * @param string $pathLogOthers
      */
-    public function setPathLogOthers($pathLogOthers)
+    public function setPathLogOthers(string $pathLogOthers): void
     {
         $this->pathLogOthers = $pathLogOthers;
     }
@@ -160,7 +196,7 @@ class CheckUrlSiteMap
     /**
      * @return SimpleXMLElement
      */
-    public function getSimpleXMLElement()
+    public function getSimpleXMLElement(): SimpleXMLElement
     {
         return $this->simpleXMLElement;
     }
@@ -168,23 +204,23 @@ class CheckUrlSiteMap
     /**
      * @param SimpleXMLElement $simpleXMLElement
      */
-    public function setSimpleXMLElement($simpleXMLElement)
+    public function setSimpleXMLElement($simpleXMLElement): void
     {
         $this->simpleXMLElement = $simpleXMLElement;
     }
 
     /**
-     * @return bool|string
+     * @return string
      */
-    public function getUrlOpenFile()
+    public function getUrlOpenFile(): string
     {
         return $this->urlOpenFile;
     }
 
     /**
-     * @param bool|string $urlOpenFile
+     * @param string $urlOpenFile
      */
-    public function setUrlOpenFile($urlOpenFile)
+    public function setUrlOpenFile(string $urlOpenFile): void
     {
         $this->urlOpenFile = $urlOpenFile;
     }
