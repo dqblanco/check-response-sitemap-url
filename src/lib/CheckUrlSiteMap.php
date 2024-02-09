@@ -97,8 +97,9 @@ class CheckUrlSiteMap
         foreach($this->simpleXMLElement->url as $internalNode){
             $url_file = $internalNode->loc;
             $curl_file = curl_init($url_file);
-            curl_setopt($curl_file, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-            curl_setopt($curl_file, CURLOPT_USERPWD, "XALOK:protected");
+            //User if the urls are basic Authentication
+            //curl_setopt($curl_file, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+            //curl_setopt($curl_file, CURLOPT_USERPWD, "user:password");
             curl_setopt($curl_file, CURLOPT_NOBODY, true);
             $result_file = curl_exec($curl_file);
 
@@ -109,21 +110,17 @@ class CheckUrlSiteMap
 
                 if ($statusCode == 404) {
                     $file = fopen($this->getPathLog404(),"a+");
-                    fputs($file,$internalNode->loc."\n");
                 }elseif ($statusCode == 200) {
                     $file = fopen($this->getPathLog200(),"a+");
-                    fputs($file,$internalNode->loc."\n");
                 }elseif ($statusCode == 403) {
                     $file = fopen($this->getPathLogOthers(),"a+");
-                    fputs($file,$internalNode->loc."\n");
 
                 }elseif ($statusCode == 500) {
                     $file = fopen($this->getPathLog500(),"a+");
-                    fputs($file,$internalNode->loc."\n");
                 }else{
                     $file = fopen($this->getPathLogOthers(),"a+");
-                    fputs($file,$internalNode->loc."\n");
                 }
+                fputs($file,$internalNode->loc."\n");
             }
         }
         return true;
